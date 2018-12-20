@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: override_with_environment
+    username: override_with_environment
+    password: override_with_environment
+    testWhileIdle: true
+    validationQuery: SELECT 1
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    # Show log for each sql query
+    show-sql: false
+    hibernate:
+      # Hibernate ddl auto (create, create-drop, update): with "none" the database
+      # schema will not be automatically updated accordingly to java entities found in
+      # the project
+      ddl-auto: none
+      naming:
+        # Naming strategy
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl

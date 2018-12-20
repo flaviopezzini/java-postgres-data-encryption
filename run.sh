@@ -1,0 +1,1 @@
+SPRING_CONFIG_LOCATION=src/main/resources/application.yml SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5433/patientdata SPRING_DATASOURCE_USERNAME=postgres SPRING_DATASOURCE_PASSWORD=postgres ~/maven/bin/mvn clean package spring-boot:run

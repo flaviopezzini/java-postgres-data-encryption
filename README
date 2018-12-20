@@ -1,0 +1,48 @@
+JAVA + POSTGRES DATA ENCRYPTION
+
+
+The database of the app stores sensitive data. Create a table "Patient" that will contain
+information about your patients like the first name, last name, birthday, description etc. This
+table can have thousands till million records. Let's consider the case when only some of the
+data is sensitive e.g column first name, last name.
+
+COMMENTS AFTER COMPLETING THE PROJECT
+
+There's a file run.sh on the root folder with the command to run the project via maven.
+Very important: I have added a ddl folder with a file patient.sql, that file must be used to create the patient table, before running the project for the first time.
+
+The configuration file application.yml contain a configuration for page size:
+application:
+page-size: 4
+The default value is 4, but it can be adjusted per the needs of the project. I have set it small due to performance constraints.
+It stops searching once it finds those 4, so search for common names is very fast.
+
+The datasource attributes (url, username, password) come from environment variables, so we're not writing it down in any file.
+See run.sh for more details.
+
+The encryption key is currently being stored in posgresql.conf file.
+Ideally it should be separated from the data, but I ran out of time.
+It is very possible though that in a production situation the data would live in its own ssd disk while the postgres installation would be in another.
+I noticed that Vlad Mihalcea was not very worried about this scenario, so that helped me focus my effort on the other issues at hand (See comments at https://vladmihalcea.com/how-to-encrypt-and-decrypt-data-with-hibernate/).
+
+There is a spring boot project enclosed with 2 endpoints:
+One for creating patients:
+POST /patient where you can pass in the patient in the request body like this:
+{
+"firstName" : "John",
+"lastName" : "Lineker",
+"birthDate" : "1960-01-01",
+"description" : "description"
+}
+
+And one for searching patients by last name and first name, with pagination. Pagination is very important for performance.
+GET /patients?lastName=Macron&firstName=Emmanuel&page=0
+
+I am using database side column encryption using a postgres function. It seems to be the consensus in terms of both performance and security.
+In my tests with 16000 records I have noticed that common names return super fast, so long as we don't use sorting.
+In my tests it was taking around 15ms to return a list of 4 names for a very common name in the table (eg. John Smith). Not so common names were taking around 5 seconds, and it was taking around 10 seconds to return a 404 when it could not find that name.
+
+In terms of performance, I got curious at some point whether a native query could yield better results, but I figured that Hibernate is smarter than me in processing the results.
+Something to think about though for the future is whether or not a postgres stored procedure could produce better speeds on larger amounts of data. In my test batch (16 thousand records), querying the database directly was not much faster.
+
+Insertion was also quite fast, I didn't bother to measure as I figured insertion is not the bottle neck here.
